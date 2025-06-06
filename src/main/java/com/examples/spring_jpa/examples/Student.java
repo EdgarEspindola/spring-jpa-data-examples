@@ -30,6 +30,10 @@ public class Student {
     @Column(nullable = false, unique = true)
     private String email;
 
+    protected Student() {
+        // Default constructor for JPA
+    }
+
     public Student(Long id, String firstName, String lastName, Integer age, String email) {
         this.id = id;
         this.firstName = firstName;
