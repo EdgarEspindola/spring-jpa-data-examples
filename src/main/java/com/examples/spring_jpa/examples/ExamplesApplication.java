@@ -29,7 +29,12 @@ public class ExamplesApplication {
 			System.out.println(
 					studentRepository.findStudentsByFirstNameEqualsIgnoreCaseAndAgeGreaterThanEqual("John", 18));
 
-			studentRepository.deleteById(1L);
+			System.out.println(
+					studentRepository.findStudentsByFirstNameEqualsIgnoreCaseAndAgeGreaterThanEqualNative("John", 18));
+
+			// studentRepository.deleteById(1L);
+			studentRepository.deleteStudentByEmail("john.doe@example.com");
+
 			System.out.println("Total students after deletion: %s".formatted(studentRepository.count()));
 			System.out.println("Finding student by email: %s"
 					.formatted(studentRepository.findStudentByEmail("john.doe@example.com")));
