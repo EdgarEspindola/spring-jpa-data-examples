@@ -23,8 +23,16 @@ public class ExamplesApplication {
 			System.out.println(studentRepository.findById(1L));
 			System.out.println(studentRepository.existsById(1L));
 			System.out.println(studentRepository.existsById(2L));
+			System.out.println("Finding student by email: %s"
+					.formatted(studentRepository.findStudentByEmail("john.doe@example.com")));
+
+			System.out.println(
+					studentRepository.findStudentsByFirstNameEqualsIgnoreCaseAndAgeGreaterThanEqual("John", 18));
+
 			studentRepository.deleteById(1L);
-			System.out.println("Total students after deletion: " + studentRepository.count());
+			System.out.println("Total students after deletion: %s".formatted(studentRepository.count()));
+			System.out.println("Finding student by email: %s"
+					.formatted(studentRepository.findStudentByEmail("john.doe@example.com")));
 		};
 	}
 
