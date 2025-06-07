@@ -1,9 +1,17 @@
 package com.examples.spring_jpa.examples;
 
+import java.util.List;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import com.github.javafaker.Faker;
 
 @SpringBootApplication
 public class ExamplesApplication {
@@ -15,30 +23,45 @@ public class ExamplesApplication {
 	@Bean
 	CommandLineRunner commandLineRunner(StudentRepository studentRepository) {
 		return args -> {
-			// Example usage of the repository
-			Student student1 = new Student("John", "Doe", 20, "john.doe@example.com");
-			studentRepository.save(student1);
+			generateFakeStudents(studentRepository);
 			System.out.println("Total students: " + studentRepository.count());
-			System.out.println(studentRepository.findAll());
-			System.out.println(studentRepository.findById(1L));
-			System.out.println(studentRepository.existsById(1L));
-			System.out.println(studentRepository.existsById(2L));
-			System.out.println("Finding student by email: %s"
-					.formatted(studentRepository.findStudentByEmail("john.doe@example.com")));
 
-			System.out.println(
-					studentRepository.findStudentsByFirstNameEqualsIgnoreCaseAndAgeGreaterThanEqual("John", 18));
+			Pageable pageable = PageRequest.of(0, 10);
+			Page<Student> pagedStudents = studentRepository.findAll(pageable);
+			System.out.println(pagedStudents);
+			System.out.println(pagedStudents.getTotalPages());
+			System.out.println(pagedStudents.getTotalElements());
+			System.out.println(pagedStudents.getSize());
+			pagedStudents.get().forEach(System.out::println);
 
-			System.out.println(
-					studentRepository.findStudentsByFirstNameEqualsIgnoreCaseAndAgeGreaterThanEqualNative("John", 18));
+			pageable = PageRequest.of(1, 10);
+			pagedStudents = studentRepository.findAll(pageable);
+			System.out.println("-----------");
+			pagedStudents.get().forEach(System.out::println);
 
-			// studentRepository.deleteById(1L);
-			studentRepository.deleteStudentByEmail("john.doe@example.com");
 
-			System.out.println("Total students after deletion: %s".formatted(studentRepository.count()));
-			System.out.println("Finding student by email: %s"
-					.formatted(studentRepository.findStudentByEmail("john.doe@example.com")));
+			studentRepository.findAll();
 		};
+	}
+
+	private void generateFakeStudents(StudentRepository studentRepository) {
+		Faker faker = new Faker();
+		for (int i = 0; i < 100; i++) {
+			String firstName = faker.name().firstName();
+			String lastName = faker.name().lastName();
+			String email = "%s.%s@domain.test".formatted(firstName, lastName);
+			Student student = new Student(firstName, lastName, faker.number().numberBetween(18, 30), email);
+			studentRepository.save(student);
+		}
+	}
+
+	private void outputStudentsSorted(StudentRepository studentRepository) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "firstName").and(Sort.by("age").descending());
+		List<Student> allStudents = studentRepository.findAll(sort);
+		
+		allStudents.forEach(student -> {
+			System.out.println("Student: " + student.getFirstName() +  ", Age: " + student.getAge());
+		});
 	}
 
 }
