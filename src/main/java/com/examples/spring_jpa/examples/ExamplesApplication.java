@@ -1,14 +1,12 @@
 package com.examples.spring_jpa.examples;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.github.javafaker.Faker;
@@ -21,27 +19,49 @@ public class ExamplesApplication {
 	}
 
 	@Bean
-	CommandLineRunner commandLineRunner(StudentRepository studentRepository) {
+	CommandLineRunner commandLineRunner(StudentRepository studentRepository, StudentIdCardRepository studentIdCardRepository) {
 		return args -> {
-			generateFakeStudents(studentRepository);
-			System.out.println("Total students: " + studentRepository.count());
+			oneToOneUnidirectional(studentRepository, studentIdCardRepository);
 
-			Pageable pageable = PageRequest.of(0, 10);
-			Page<Student> pagedStudents = studentRepository.findAll(pageable);
-			System.out.println(pagedStudents);
-			System.out.println(pagedStudents.getTotalPages());
-			System.out.println(pagedStudents.getTotalElements());
-			System.out.println(pagedStudents.getSize());
-			pagedStudents.get().forEach(System.out::println);
-
-			pageable = PageRequest.of(1, 10);
-			pagedStudents = studentRepository.findAll(pageable);
-			System.out.println("-----------");
-			pagedStudents.get().forEach(System.out::println);
-
-
-			studentRepository.findAll();
+			oneToOneBidirectional(studentRepository);
 		};
+	}
+
+	private void oneToOneBidirectional(StudentRepository studentRepository) {
+		StudentIdCard studentIdCard = new StudentIdCard();
+		studentIdCard.setCardNumber("ID-12345");
+
+		Student student = new Student("John", "Doe", 20, "jeniffer.doe@domain.test");
+		student.setStudentIdCard(studentIdCard);
+		studentIdCard.setStudent(student);
+		studentRepository.save(student);
+
+		System.out.println("----------------");
+		Optional<Student> studentById = studentRepository.findById(1L);
+		System.out.println(studentById.get().getStudentIdCard());
+
+		System.out.println("----------------");
+		studentRepository.deleteById(1L);
+	}
+
+	private void oneToOneUnidirectional(StudentRepository studentRepository,
+			StudentIdCardRepository studentIdCardRepository) {
+		Student student = new Student("John", "Doe", 20, "john.doe@domain.test");
+		student = studentRepository.save(student);
+
+		StudentIdCard studentIdCard = new StudentIdCard();
+		studentIdCard.setCardNumber("ID-12346");
+		studentIdCard.setStudent(student);
+		studentIdCardRepository.save(studentIdCard);
+
+		System.out.println("----------------");
+		Optional<StudentIdCard> card = studentIdCardRepository.findById(1L);
+		System.out.println(card.get().getId());
+		System.out.println(card.get().getCardNumber());	
+		//System.out.println(card.get().getStudent()); Could not initialize proxy object - no session available
+
+		Optional<StudentIdCard> studentIdCardNumberById = studentIdCardRepository.findStudentIdCardNumberById(1L);
+		System.out.println(studentIdCardNumberById.get().getStudent());
 	}
 
 	private void generateFakeStudents(StudentRepository studentRepository) {
