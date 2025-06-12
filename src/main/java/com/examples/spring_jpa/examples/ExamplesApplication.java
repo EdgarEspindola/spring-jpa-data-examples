@@ -1,5 +1,6 @@
 package com.examples.spring_jpa.examples;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,11 +20,40 @@ public class ExamplesApplication {
 	}
 
 	@Bean
-	CommandLineRunner commandLineRunner(StudentRepository studentRepository, StudentIdCardRepository studentIdCardRepository) {
+	CommandLineRunner commandLineRunner(StudentRepository studentRepository,
+			StudentIdCardRepository studentIdCardRepository, BookRepository bookRepository) {
 		return args -> {
-			oneToOneUnidirectional(studentRepository, studentIdCardRepository);
+			// oneToOneUnidirectional(studentRepository, studentIdCardRepository);
+			// oneToOneBidirectional(studentRepository);
 
-			oneToOneBidirectional(studentRepository);
+			Student student = new Student("John", "Doe", 20, "john.doe@example.com");
+			student = studentRepository.save(student);
+
+			Book book = new Book();
+			book.setTitle("Spring Data JPA");
+			book.setCreatedAt(Instant.now());
+			book.setStudent(student);
+			bookRepository.save(book);
+
+			Student anotherStudent = new Student("Jane", "Doe", 22, "jane.doe@example.com");
+			anotherStudent = studentRepository.save(anotherStudent);
+
+			Book anotherBook = new Book();
+			anotherBook.setTitle("Hibernate Basics");
+			anotherBook.setCreatedAt(Instant.now());
+			anotherBook.setStudent(anotherStudent);
+			bookRepository.save(anotherBook);
+
+			System.out.println("All books:");
+			bookRepository.findAllWithStudents().forEach(b -> {
+				System.out.println("Book ID: " + b.getId() + ", Title: " + b.getTitle() + ", Student: "
+						+ b.getStudent().getFirstName() + " " + b.getStudent().getLastName());
+			});
+
+			bookRepository.deleteAll();
+
+			System.out.println("Total book after delete " + bookRepository.count());
+			System.out.println("Total students after delete " + studentRepository.count());
 		};
 	}
 
@@ -57,8 +87,9 @@ public class ExamplesApplication {
 		System.out.println("----------------");
 		Optional<StudentIdCard> card = studentIdCardRepository.findById(1L);
 		System.out.println(card.get().getId());
-		System.out.println(card.get().getCardNumber());	
-		//System.out.println(card.get().getStudent()); Could not initialize proxy object - no session available
+		System.out.println(card.get().getCardNumber());
+		// System.out.println(card.get().getStudent()); Could not initialize proxy
+		// object - no session available
 
 		Optional<StudentIdCard> studentIdCardNumberById = studentIdCardRepository.findStudentIdCardNumberById(1L);
 		System.out.println(studentIdCardNumberById.get().getStudent());
@@ -78,9 +109,9 @@ public class ExamplesApplication {
 	private void outputStudentsSorted(StudentRepository studentRepository) {
 		Sort sort = Sort.by(Sort.Direction.ASC, "firstName").and(Sort.by("age").descending());
 		List<Student> allStudents = studentRepository.findAll(sort);
-		
+
 		allStudents.forEach(student -> {
-			System.out.println("Student: " + student.getFirstName() +  ", Age: " + student.getAge());
+			System.out.println("Student: " + student.getFirstName() + ", Age: " + student.getAge());
 		});
 	}
 
