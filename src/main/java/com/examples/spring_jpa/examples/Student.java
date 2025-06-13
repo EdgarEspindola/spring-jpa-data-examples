@@ -1,6 +1,8 @@
 package com.examples.spring_jpa.examples;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -9,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -35,6 +38,9 @@ public class Student {
 
     @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private StudentIdCard studentIdCard;
+
+    @OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Set<Book> books = new HashSet<>();
 
     protected Student() {
         // Default constructor for JPA
@@ -103,6 +109,30 @@ public class Student {
         this.studentIdCard = studentIdCard;
     }
 
+    public Set<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(Set<Book> books) {
+        this.books = books;
+    }
+
+    public void addBook(Book book) {
+        if (books.contains(book)) {
+            return; // Book already exists in the set
+        }
+
+        this.books.add(book);
+        book.setStudent(this);
+    }
+
+    public void removeBook(Book book) {
+        if (books.contains(book)) {
+            books.remove(book);
+            book.setStudent(null);
+        } 
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -121,5 +151,13 @@ public class Student {
     public int hashCode() {
         return Objects.hash(id, firstName, lastName, age, email);
     }
+
+    @Override
+    public String toString() {
+        return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", age=" + age + ", email="
+                + email + "]";
+    }
+
+    
 
 }

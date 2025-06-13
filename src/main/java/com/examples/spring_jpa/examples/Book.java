@@ -73,6 +73,26 @@ public class Book {
         this.createdAt = createdAt;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Book other = (Book) obj;
+        return title != null && title.equals(other.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(title);
+    }
+
+    @Override
+    public String toString() {
+        return "Book [id=" + id + ", title=" + title + "]";
+    }
+
+    
+
     
 
 }

@@ -3,6 +3,7 @@ package com.examples.spring_jpa.examples;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,41 +21,82 @@ public class ExamplesApplication {
 	}
 
 	@Bean
-	CommandLineRunner commandLineRunner(StudentRepository studentRepository,
-			StudentIdCardRepository studentIdCardRepository, BookRepository bookRepository) {
+	CommandLineRunner commandLineRunner(StudentRepository studentRepository, BookRepository bookRepository,
+			StudentService studentService) {
 		return args -> {
 			// oneToOneUnidirectional(studentRepository, studentIdCardRepository);
 			// oneToOneBidirectional(studentRepository);
+			// oneToManyExamples(studentRepository, bookRepository, studentService);
 
 			Student student = new Student("John", "Doe", 20, "john.doe@example.com");
-			student = studentRepository.save(student);
 
 			Book book = new Book();
 			book.setTitle("Spring Data JPA");
 			book.setCreatedAt(Instant.now());
-			book.setStudent(student);
-			bookRepository.save(book);
 
-			Student anotherStudent = new Student("Jane", "Doe", 22, "jane.doe@example.com");
-			anotherStudent = studentRepository.save(anotherStudent);
+			student.addBook(book);
+			studentRepository.save(student);
 
-			Book anotherBook = new Book();
-			anotherBook.setTitle("Hibernate Basics");
-			anotherBook.setCreatedAt(Instant.now());
-			anotherBook.setStudent(anotherStudent);
-			bookRepository.save(anotherBook);
-
-			System.out.println("All books:");
-			bookRepository.findAllWithStudents().forEach(b -> {
-				System.out.println("Book ID: " + b.getId() + ", Title: " + b.getTitle() + ", Student: "
-						+ b.getStudent().getFirstName() + " " + b.getStudent().getLastName());
+			studentRepository.findAllStudentsWithBooks().forEach(s -> {
+				System.out.println(s);
+				s.getBooks().forEach(System.out::println);
 			});
 
-			bookRepository.deleteAll();
+			System.out.println("Total books: " + bookRepository.count());
 
-			System.out.println("Total book after delete " + bookRepository.count());
-			System.out.println("Total students after delete " + studentRepository.count());
+			student.removeBook(book);
+			studentRepository.save(student);
+
+			System.out.println("Total books after removal: " + bookRepository.count());
+
+			studentRepository.findAllStudentsWithBooks().forEach(s -> {
+				System.out.println(s);
+				System.out.println("Books size: " + s.getBooks().size());
+			});
+
+			System.out.println("Total students: " + studentRepository.count());
 		};
+	}
+
+	private void oneToManyExamples(StudentRepository studentRepository, BookRepository bookRepository,
+			StudentService studentService) {
+		Student student = new Student("John", "Doe", 20, "john.doe@example.com");
+
+		Book book = new Book();
+		book.setTitle("Spring Data JPA");
+		book.setCreatedAt(Instant.now());
+		book.setStudent(student);
+
+		student.setBooks(Set.of(book));
+		studentRepository.save(student);
+
+		System.out.println("All books:");
+		bookRepository.findAllWithStudents().forEach(b -> {
+			System.out.println("Book ID: " + b.getId() + ", Title: " + b.getTitle() + ", Student: "
+					+ b.getStudent().getFirstName() + " " + b.getStudent().getLastName());
+		});
+
+		System.out.println("\nAll students:");
+		studentRepository.findAllStudentsWithBooks().forEach(s -> {
+			System.out.println("Student ID: " + s.getId() + ", Name: " + s.getFirstName() + " " + s.getLastName()
+					+ ", Age: " + s.getAge() + ", Email: " + s.getEmail());
+
+			s.getBooks().forEach(savedBook -> {
+				System.out.println("  Book ID: " + savedBook.getId() + ", Title: " + savedBook.getTitle());
+			});
+		});
+
+		System.out.println("\nUsing studentService to get student with books:");
+		studentService.getStudentsWithBooks(1L).ifPresent(s -> {
+			System.out.println("Student with ID 1: " + s.getFirstName() + " " + s.getLastName());
+			s.getBooks().forEach(b -> System.out.println("  Book: " + b.getTitle()));
+		});
+
+		System.out.println("\nUsing entity graph to fetch student with books:");
+		studentRepository.findAllWithEntityGraphs().forEach(s -> {
+			System.out.println("Student: " + s.getFirstName() + " " + s.getLastName());
+			s.getBooks().forEach(b -> System.out.println("  Book: " + b.getTitle()));
+		});
 	}
 
 	private void oneToOneBidirectional(StudentRepository studentRepository) {

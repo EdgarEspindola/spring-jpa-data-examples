@@ -1,5 +1,6 @@
 package com.examples.spring_jpa.examples;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,5 +27,15 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     @Modifying
     @Query("DELETE FROM Student s WHERE s.email = :email")
     int deleteStudentByEmail(@Param("email") String email);
+
+    @Query("SELECT s FROM Student s JOIN FETCH s.books")
+    List<Student> findAllStudentsWithBooks();
+
+    @EntityGraph(attributePaths = {"books"})
+    @Query("SELECT s FROM Student s")
+    List<Student> findAllWithEntityGraphs();
+
+    @Query("SELECT s FROM Student s JOIN FETCH s.books WHERE s.id = :id")
+    List<Student> findStudentsByIdWithBooks(@Param("id") String id);
 
 }
