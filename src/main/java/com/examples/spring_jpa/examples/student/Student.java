@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.examples.spring_jpa.examples.book.Book;
+import com.examples.spring_jpa.examples.course.Course;
 import com.examples.spring_jpa.examples.courseenrollment.CourseEnrollment;
 import com.examples.spring_jpa.examples.studentidcard.StudentIdCard;
 
@@ -46,7 +47,7 @@ public class Student {
     @OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Book> books = new HashSet<>();
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "student", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<CourseEnrollment> courseEnrollments = new HashSet<>();
 
     protected Student() {
@@ -146,6 +147,26 @@ public class Student {
 
     public void setCourseEnrollments(Set<CourseEnrollment> courseEnrollments) {
         this.courseEnrollments = courseEnrollments;
+    }
+
+    public void addCourseEnrollment(Course course) {
+        if (courseEnrollments.stream().anyMatch(enrollment -> enrollment.getCourse().equals(course))) {
+            return; // Course already enrolled
+        }
+
+        CourseEnrollment enrollment = new CourseEnrollment(this, course);
+        this.courseEnrollments.add(enrollment);
+    }
+
+    public void removeCourseEnrollment(Course course) {
+        CourseEnrollment enrollmentToRemove = courseEnrollments.stream()
+                .filter(enrollment -> enrollment.getCourse().equals(course))
+                .findFirst()
+                .orElse(null);
+
+        if (enrollmentToRemove != null) {
+            courseEnrollments.remove(enrollmentToRemove);
+        }
     }
 
     // public void addCourse(Course course) {

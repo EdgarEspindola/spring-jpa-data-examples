@@ -32,8 +32,7 @@ public class ExamplesApplication {
 	}
 
 	@Bean
-	CommandLineRunner commandLineRunner(StudentRepository studentRepository,
-			CourseRepository courseRepository, CourseEnrollmentRepository courseEnrollmentRepository) {
+	CommandLineRunner commandLineRunner(StudentRepository studentRepository, CourseEnrollmentRepository courseEnrollmentRepository) {
 		return args -> {
 			// oneToOneUnidirectional(studentRepository, studentIdCardRepository);
 			// oneToOneBidirectional(studentRepository);
@@ -42,16 +41,26 @@ public class ExamplesApplication {
 
 			Student john = new Student("John", "Doe", 20, "john.doe@example.com");
 			Student jane = new Student("Jane", "Doe", 22, "jane.doe@example.com");
-			studentRepository.saveAll(List.of(john, jane));
 
 			Course mathematics = new Course("Mathematics", "Science");
 			Course physics = new Course("Physics", "Science");
-			courseRepository.saveAll(List.of(mathematics, physics));
 
-			courseEnrollmentRepository.saveAll(List.of(
-					new CourseEnrollment(john, mathematics),
-					new CourseEnrollment(john, physics),
-					new CourseEnrollment(jane, mathematics)));
+			john.addCourseEnrollment(mathematics);
+			john.addCourseEnrollment(physics);
+			jane.addCourseEnrollment(mathematics);
+			studentRepository.saveAll(Set.of(john, jane));
+
+			courseEnrollmentRepository.findAll().forEach(courseEnrollment -> {
+				System.out.println(courseEnrollment.getCourseEnrollmentId());
+				System.out.println("Course Enrollment: " + courseEnrollment.getCourse().getName() + " - "
+						+ courseEnrollment.getStudent().getFirstName() + " "
+						+ courseEnrollment.getStudent().getLastName());
+				System.out.println();
+			});
+
+			System.out.println("Remove mathematics course from John");
+			john.removeCourseEnrollment(mathematics);
+			studentRepository.save(john);
 
 			courseEnrollmentRepository.findAll().forEach(courseEnrollment -> {
 				System.out.println(courseEnrollment.getCourseEnrollmentId());

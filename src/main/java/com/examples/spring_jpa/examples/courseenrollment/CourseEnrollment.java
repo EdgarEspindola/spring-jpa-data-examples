@@ -1,14 +1,18 @@
 package com.examples.spring_jpa.examples.courseenrollment;
 
+import java.time.ZonedDateTime;
+
 import com.examples.spring_jpa.examples.course.Course;
 import com.examples.spring_jpa.examples.student.Student;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.ForeignKey;
 
 @Entity
@@ -26,6 +30,14 @@ public class CourseEnrollment {
     @JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "enrollment_course_id_fk"))
     @MapsId("courseId")
     private Course course;
+
+    @Column(nullable = false)
+    private ZonedDateTime createdAt;
+
+    @PrePersist
+    private void prePersist() {
+        this.createdAt = ZonedDateTime.now();
+    }
 
     public CourseEnrollment() {
     }
@@ -60,5 +72,12 @@ public class CourseEnrollment {
         this.course = course;
     }
 
-    
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }
