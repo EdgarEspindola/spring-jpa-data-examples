@@ -34,7 +34,7 @@ public class StudentIdCard {
     @Column(nullable = false)
     private ZonedDateTime createdAt;
 
-    protected StudentIdCard() {
+    public StudentIdCard() {
         // Default constructor for JPA
     }
 

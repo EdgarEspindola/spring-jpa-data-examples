@@ -34,7 +34,7 @@ public class Book {
     
     private Instant createdAt;
 
-    protected Book() {
+    public Book() {
         // Default constructor for JPA
     }
 

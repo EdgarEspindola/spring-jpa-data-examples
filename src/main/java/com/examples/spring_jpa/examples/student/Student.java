@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.examples.spring_jpa.examples.book.Book;
+import com.examples.spring_jpa.examples.course.Course;
 import com.examples.spring_jpa.examples.studentidcard.StudentIdCard;
 
 import jakarta.persistence.CascadeType;
@@ -14,6 +15,10 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -44,6 +49,12 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Book> books = new HashSet<>();
+
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinTable(name = "course_enrollment",
+               joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "enrollment_student_id_fk")),
+               inverseJoinColumns = @JoinColumn(name = "course_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "enrollment_course_id_fk")))
+    private Set<Course> courses = new HashSet<>();  
 
     protected Student() {
         // Default constructor for JPA
@@ -134,6 +145,28 @@ public class Student {
             books.remove(book);
             book.setStudent(null);
         } 
+    }
+
+    public Set<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(Set<Course> courses) {
+        this.courses = courses;
+    }
+
+    public void addCourse(Course course) {
+        if (courses.contains(course)) {
+            return; // Course already exists in the set
+        }
+
+        this.courses.add(course);
+    }
+
+    public void removeCourse(Course course) {
+        if (courses.contains(course)) {
+            courses.remove(course);
+        }
     }
 
     @Override

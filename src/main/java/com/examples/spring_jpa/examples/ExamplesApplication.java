@@ -11,6 +11,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Sort;
 
+import com.examples.spring_jpa.examples.book.Book;
+import com.examples.spring_jpa.examples.book.BookRepository;
+import com.examples.spring_jpa.examples.course.Course;
+import com.examples.spring_jpa.examples.course.CourseRepository;
+import com.examples.spring_jpa.examples.student.Student;
+import com.examples.spring_jpa.examples.student.StudentRepository;
+import com.examples.spring_jpa.examples.student.StudentService;
+import com.examples.spring_jpa.examples.studentidcard.StudentIdCard;
+import com.examples.spring_jpa.examples.studentidcard.StudentIdCardRepository;
 import com.github.javafaker.Faker;
 
 @SpringBootApplication
@@ -21,41 +30,56 @@ public class ExamplesApplication {
 	}
 
 	@Bean
-	CommandLineRunner commandLineRunner(StudentRepository studentRepository, BookRepository bookRepository,
-			StudentService studentService) {
+	CommandLineRunner commandLineRunner(StudentRepository studentRepository,
+			CourseRepository courseRepository) {
 		return args -> {
 			// oneToOneUnidirectional(studentRepository, studentIdCardRepository);
 			// oneToOneBidirectional(studentRepository);
 			// oneToManyExamples(studentRepository, bookRepository, studentService);
+			// oneToManyRemove(studentRepository, bookRepository);
 
-			Student student = new Student("John", "Doe", 20, "john.doe@example.com");
+			Student john = new Student("John", "Doe", 20, "john.doe@example.com");
+			Student jane = new Student("Jane", "Doe", 22, "jane.doe@example.com");
 
-			Book book = new Book();
-			book.setTitle("Spring Data JPA");
-			book.setCreatedAt(Instant.now());
+			Course mathematics = new Course("Mathematics", "Science");
+			Course physics = new Course("Physics", "Science");
 
-			student.addBook(book);
-			studentRepository.save(student);
+			john.addCourse(mathematics);
+			john.addCourse(physics);
+			jane.addCourse(mathematics);
 
-			studentRepository.findAllStudentsWithBooks().forEach(s -> {
-				System.out.println(s);
-				s.getBooks().forEach(System.out::println);
-			});
-
-			System.out.println("Total books: " + bookRepository.count());
-
-			student.removeBook(book);
-			studentRepository.save(student);
-
-			System.out.println("Total books after removal: " + bookRepository.count());
-
-			studentRepository.findAllStudentsWithBooks().forEach(s -> {
-				System.out.println(s);
-				System.out.println("Books size: " + s.getBooks().size());
-			});
-
-			System.out.println("Total students: " + studentRepository.count());
+			studentRepository.saveAll(List.of(john, jane));
 		};
+	}
+
+	private void oneToManyRemove(StudentRepository studentRepository, BookRepository bookRepository) {
+		Student student = new Student("John", "Doe", 20, "john.doe@example.com");
+
+		Book book = new Book();
+		book.setTitle("Spring Data JPA");
+		book.setCreatedAt(Instant.now());
+
+		student.addBook(book);
+		studentRepository.save(student);
+
+		studentRepository.findAllStudentsWithBooks().forEach(s -> {
+			System.out.println(s);
+			s.getBooks().forEach(System.out::println);
+		});
+
+		System.out.println("Total books: " + bookRepository.count());
+
+		student.removeBook(book);
+		studentRepository.save(student);
+
+		System.out.println("Total books after removal: " + bookRepository.count());
+
+		studentRepository.findAllStudentsWithBooks().forEach(s -> {
+			System.out.println(s);
+			System.out.println("Books size: " + s.getBooks().size());
+		});
+
+		System.out.println("Total students: " + studentRepository.count());
 	}
 
 	private void oneToManyExamples(StudentRepository studentRepository, BookRepository bookRepository,
