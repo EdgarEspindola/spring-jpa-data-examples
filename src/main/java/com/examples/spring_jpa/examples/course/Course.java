@@ -1,10 +1,18 @@
 package com.examples.spring_jpa.examples.course;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.examples.spring_jpa.examples.courseenrollment.CourseEnrollment;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 
 @Entity
@@ -19,6 +27,9 @@ public class Course {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String department;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Set<CourseEnrollment> courseEnrollments = new HashSet<>();
 
     protected Course() {
         // Default constructor for JPA
@@ -52,4 +63,14 @@ public class Course {
     public void setDepartment(String department) {
         this.department = department;
     }
+
+    public Set<CourseEnrollment> getCourseEnrollments() {
+        return courseEnrollments;
+    }
+
+    public void setCourseEnrollments(Set<CourseEnrollment> courseEnrollments) {
+        this.courseEnrollments = courseEnrollments;
+    }
+
+    
 }

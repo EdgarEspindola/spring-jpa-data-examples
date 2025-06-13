@@ -15,6 +15,8 @@ import com.examples.spring_jpa.examples.book.Book;
 import com.examples.spring_jpa.examples.book.BookRepository;
 import com.examples.spring_jpa.examples.course.Course;
 import com.examples.spring_jpa.examples.course.CourseRepository;
+import com.examples.spring_jpa.examples.courseenrollment.CourseEnrollment;
+import com.examples.spring_jpa.examples.courseenrollment.CourseEnrollmentRepository;
 import com.examples.spring_jpa.examples.student.Student;
 import com.examples.spring_jpa.examples.student.StudentRepository;
 import com.examples.spring_jpa.examples.student.StudentService;
@@ -31,7 +33,7 @@ public class ExamplesApplication {
 
 	@Bean
 	CommandLineRunner commandLineRunner(StudentRepository studentRepository,
-			CourseRepository courseRepository) {
+			CourseRepository courseRepository, CourseEnrollmentRepository courseEnrollmentRepository) {
 		return args -> {
 			// oneToOneUnidirectional(studentRepository, studentIdCardRepository);
 			// oneToOneBidirectional(studentRepository);
@@ -40,15 +42,25 @@ public class ExamplesApplication {
 
 			Student john = new Student("John", "Doe", 20, "john.doe@example.com");
 			Student jane = new Student("Jane", "Doe", 22, "jane.doe@example.com");
+			studentRepository.saveAll(List.of(john, jane));
 
 			Course mathematics = new Course("Mathematics", "Science");
 			Course physics = new Course("Physics", "Science");
+			courseRepository.saveAll(List.of(mathematics, physics));
 
-			john.addCourse(mathematics);
-			john.addCourse(physics);
-			jane.addCourse(mathematics);
+			courseEnrollmentRepository.saveAll(List.of(
+					new CourseEnrollment(john, mathematics),
+					new CourseEnrollment(john, physics),
+					new CourseEnrollment(jane, mathematics)));
 
-			studentRepository.saveAll(List.of(john, jane));
+			courseEnrollmentRepository.findAll().forEach(courseEnrollment -> {
+				System.out.println(courseEnrollment.getCourseEnrollmentId());
+				System.out.println("Course Enrollment: " + courseEnrollment.getCourse().getName() + " - "
+						+ courseEnrollment.getStudent().getFirstName() + " "
+						+ courseEnrollment.getStudent().getLastName());
+				System.out.println();
+			});
+
 		};
 	}
 
