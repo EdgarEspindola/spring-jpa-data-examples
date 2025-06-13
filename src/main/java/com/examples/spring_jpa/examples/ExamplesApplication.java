@@ -32,45 +32,57 @@ public class ExamplesApplication {
 	}
 
 	@Bean
-	CommandLineRunner commandLineRunner(StudentRepository studentRepository, CourseEnrollmentRepository courseEnrollmentRepository) {
+	CommandLineRunner commandLineRunner(StudentRepository studentRepository) {
 		return args -> {
 			// oneToOneUnidirectional(studentRepository, studentIdCardRepository);
 			// oneToOneBidirectional(studentRepository);
 			// oneToManyExamples(studentRepository, bookRepository, studentService);
 			// oneToManyRemove(studentRepository, bookRepository);
+			// ManyToManyExamples(studentRepository, courseEnrollmentRepository);
 
-			Student john = new Student("John", "Doe", 20, "john.doe@example.com");
-			Student jane = new Student("Jane", "Doe", 22, "jane.doe@example.com");
+			Student student = new Student("John", "Doe", 20, "john.doe@example.com");
+			studentRepository.save(student);
+			System.out.println("Total students before deleterion: " + studentRepository.count());
 
-			Course mathematics = new Course("Mathematics", "Science");
-			Course physics = new Course("Physics", "Science");
+			studentRepository.deleteById(1L);
+			System.out.println("Total students after deletion: " + studentRepository.count());
 
-			john.addCourseEnrollment(mathematics);
-			john.addCourseEnrollment(physics);
-			jane.addCourseEnrollment(mathematics);
-			studentRepository.saveAll(Set.of(john, jane));
-
-			courseEnrollmentRepository.findAll().forEach(courseEnrollment -> {
-				System.out.println(courseEnrollment.getCourseEnrollmentId());
-				System.out.println("Course Enrollment: " + courseEnrollment.getCourse().getName() + " - "
-						+ courseEnrollment.getStudent().getFirstName() + " "
-						+ courseEnrollment.getStudent().getLastName());
-				System.out.println();
-			});
-
-			System.out.println("Remove mathematics course from John");
-			john.removeCourseEnrollment(mathematics);
-			studentRepository.save(john);
-
-			courseEnrollmentRepository.findAll().forEach(courseEnrollment -> {
-				System.out.println(courseEnrollment.getCourseEnrollmentId());
-				System.out.println("Course Enrollment: " + courseEnrollment.getCourse().getName() + " - "
-						+ courseEnrollment.getStudent().getFirstName() + " "
-						+ courseEnrollment.getStudent().getLastName());
-				System.out.println();
-			});
 
 		};
+	}
+
+	private void ManyToManyExamples(StudentRepository studentRepository,
+			CourseEnrollmentRepository courseEnrollmentRepository) {
+		Student john = new Student("John", "Doe", 20, "john.doe@example.com");
+		Student jane = new Student("Jane", "Doe", 22, "jane.doe@example.com");
+
+		Course mathematics = new Course("Mathematics", "Science");
+		Course physics = new Course("Physics", "Science");
+
+		john.addCourseEnrollment(mathematics);
+		john.addCourseEnrollment(physics);
+		jane.addCourseEnrollment(mathematics);
+		studentRepository.saveAll(Set.of(john, jane));
+
+		courseEnrollmentRepository.findAll().forEach(courseEnrollment -> {
+			System.out.println(courseEnrollment.getCourseEnrollmentId());
+			System.out.println("Course Enrollment: " + courseEnrollment.getCourse().getName() + " - "
+					+ courseEnrollment.getStudent().getFirstName() + " "
+					+ courseEnrollment.getStudent().getLastName());
+			System.out.println();
+		});
+
+		System.out.println("Remove mathematics course from John");
+		john.removeCourseEnrollment(mathematics);
+		studentRepository.save(john);
+
+		courseEnrollmentRepository.findAll().forEach(courseEnrollment -> {
+			System.out.println(courseEnrollment.getCourseEnrollmentId());
+			System.out.println("Course Enrollment: " + courseEnrollment.getCourse().getName() + " - "
+					+ courseEnrollment.getStudent().getFirstName() + " "
+					+ courseEnrollment.getStudent().getLastName());
+			System.out.println();
+		});
 	}
 
 	private void oneToManyRemove(StudentRepository studentRepository, BookRepository bookRepository) {

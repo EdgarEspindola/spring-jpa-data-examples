@@ -1,8 +1,12 @@
 package com.examples.spring_jpa.examples.student;
 
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import com.examples.spring_jpa.examples.book.Book;
 import com.examples.spring_jpa.examples.course.Course;
@@ -23,6 +27,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "student")
+@SQLDelete(sql = "UPDATE student SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Student {
     @Id
     @SequenceGenerator(name = "student_sequence", sequenceName = "student_sequence", allocationSize = 1)
@@ -49,6 +55,8 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<CourseEnrollment> courseEnrollments = new HashSet<>();
+
+    private ZonedDateTime deletedAt;
 
     protected Student() {
         // Default constructor for JPA
@@ -169,19 +177,13 @@ public class Student {
         }
     }
 
-    // public void addCourse(Course course) {
-    //     if (courses.contains(course)) {
-    //         return; // Course already exists in the set
-    //     }
+    public ZonedDateTime getDeletedAt() {
+        return deletedAt;
+    }
 
-    //     this.courses.add(course);
-    // }
-
-    // public void removeCourse(Course course) {
-    //     if (courses.contains(course)) {
-    //         courses.remove(course);
-    //     }
-    // }
+    public void setDeletedAt(ZonedDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -207,9 +209,4 @@ public class Student {
         return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", age=" + age + ", email="
                 + email + "]";
     }
-
-    
-
-    
-
 }
