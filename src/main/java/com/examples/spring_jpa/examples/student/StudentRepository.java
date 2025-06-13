@@ -1,4 +1,4 @@
-package com.examples.spring_jpa.examples;
+package com.examples.spring_jpa.examples.student;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,6 +1,8 @@
-package com.examples.spring_jpa.examples;
+package com.examples.spring_jpa.examples.book;
 
 import java.time.Instant;
+
+import com.examples.spring_jpa.examples.student.Student;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

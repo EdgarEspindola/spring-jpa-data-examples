@@ -1,6 +1,8 @@
-package com.examples.spring_jpa.examples;
+package com.examples.spring_jpa.examples.studentidcard;
 
 import java.time.ZonedDateTime;
+
+import com.examples.spring_jpa.examples.student.Student;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

@@ -1,4 +1,4 @@
-package com.examples.spring_jpa.examples;
+package com.examples.spring_jpa.examples.book;
 
 import java.util.List;
 

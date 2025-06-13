@@ -1,8 +1,11 @@
-package com.examples.spring_jpa.examples;
+package com.examples.spring_jpa.examples.student;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import com.examples.spring_jpa.examples.book.Book;
+import com.examples.spring_jpa.examples.studentidcard.StudentIdCard;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

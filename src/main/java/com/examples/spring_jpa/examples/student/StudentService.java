@@ -1,4 +1,4 @@
-package com.examples.spring_jpa.examples;
+package com.examples.spring_jpa.examples.student;
 
 import java.util.Optional;
 

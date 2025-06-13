@@ -1,4 +1,4 @@
-package com.examples.spring_jpa.examples;
+package com.examples.spring_jpa.examples.studentidcard;
 
 import java.util.Optional;
 
