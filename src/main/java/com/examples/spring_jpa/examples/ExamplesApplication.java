@@ -1,5 +1,6 @@
 package com.examples.spring_jpa.examples;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import com.examples.spring_jpa.examples.account.Account;
+import com.examples.spring_jpa.examples.account.AccountRepository;
+import com.examples.spring_jpa.examples.account.AccountService;
 import com.examples.spring_jpa.examples.book.Book;
 import com.examples.spring_jpa.examples.book.BookRepository;
 import com.examples.spring_jpa.examples.course.Course;
@@ -32,32 +36,21 @@ public class ExamplesApplication {
 	}
 
 	@Bean
-	CommandLineRunner commandLineRunner(StudentRepository studentRepository) {
+	CommandLineRunner commandLineRunner(AccountRepository accountRepository, AccountService accountService) {
 		return args -> {
-			// oneToOneUnidirectional(studentRepository, studentIdCardRepository);
-			// oneToOneBidirectional(studentRepository);
-			// oneToManyExamples(studentRepository, bookRepository, studentService);
-			// oneToManyRemove(studentRepository, bookRepository);
-			// ManyToManyExamples(studentRepository, courseEnrollmentRepository);
-			Book book = new Book();
-			book.setTitle("Spring Data JPA");
-			
-			Student student = new Student("John", "Doe", 20, "john.doe@example.com");
-			student.addBook(book);
-			Student persistedStudent = studentRepository.save(student);
-			System.out.println("Total students before deletion: " + studentRepository.count());
 
-			
-			// studentRepository.deleteById(1L);
-			System.out.println("Total students after deletion: " + studentRepository.count());
+			// Create accounts
+			Account account1 = new Account("Account 1", BigDecimal.valueOf(1000));
+			Account account2 = new Account("Account 2", BigDecimal.valueOf(2000));
+			accountRepository.save(account1);
+			accountRepository.save(account2);
 
-			System.out.println("---Checking auditing fields---");
-			System.out.println("Student created by: " + persistedStudent.getCreatedBy());
-			System.out.println("Student created at: " + persistedStudent.getCreatedAt());
-			System.out.println("Student last modified by: " + persistedStudent.getLastModifiedBy());
-			System.out.println("Student last modified at: " + persistedStudent.getLastModifiedAt());
+			accountService.transfer(account1, account2, BigDecimal.valueOf(500));
 
-
+			accountRepository.findAll().forEach(account -> {
+				System.out.println("Account ID: " + account.getId() + ", Name: " + account.getName()
+						+ ", Balance: " + account.getBalance());
+			});
 
 		};
 	}
