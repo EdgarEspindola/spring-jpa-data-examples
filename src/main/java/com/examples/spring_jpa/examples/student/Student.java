@@ -1,5 +1,6 @@
 package com.examples.spring_jpa.examples.student;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -7,6 +8,11 @@ import java.util.Set;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.examples.spring_jpa.examples.book.Book;
 import com.examples.spring_jpa.examples.course.Course;
@@ -16,6 +22,7 @@ import com.examples.spring_jpa.examples.studentidcard.StudentIdCard;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,11 +31,15 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.EntityListeners;
 
 @Entity
 @Table(name = "student")
 @SQLDelete(sql = "UPDATE student SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
+@EntityListeners({
+    AuditingEntityListener.class
+})
 public class Student {
     @Id
     @SequenceGenerator(name = "student_sequence", sequenceName = "student_sequence", allocationSize = 1)
@@ -57,6 +68,19 @@ public class Student {
     private Set<CourseEnrollment> courseEnrollments = new HashSet<>();
 
     private ZonedDateTime deletedAt;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private Instant createdAt;
+
+    @CreatedBy
+    private String createdBy;
+
+    @LastModifiedDate
+    private Instant lastModifiedAt;
+
+    @LastModifiedBy
+    private String lastModifiedBy;
 
     protected Student() {
         // Default constructor for JPA
@@ -185,6 +209,38 @@ public class Student {
         this.deletedAt = deletedAt;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getLastModifiedAt() {
+        return lastModifiedAt;
+    }
+
+    public void setLastModifiedAt(Instant lastModifiedAt) {
+        this.lastModifiedAt = lastModifiedAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -209,4 +265,5 @@ public class Student {
         return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", age=" + age + ", email="
                 + email + "]";
     }
+    
 }

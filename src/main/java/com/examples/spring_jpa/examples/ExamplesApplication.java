@@ -10,12 +10,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import com.examples.spring_jpa.examples.book.Book;
 import com.examples.spring_jpa.examples.book.BookRepository;
 import com.examples.spring_jpa.examples.course.Course;
-import com.examples.spring_jpa.examples.course.CourseRepository;
-import com.examples.spring_jpa.examples.courseenrollment.CourseEnrollment;
 import com.examples.spring_jpa.examples.courseenrollment.CourseEnrollmentRepository;
 import com.examples.spring_jpa.examples.student.Student;
 import com.examples.spring_jpa.examples.student.StudentRepository;
@@ -25,6 +24,7 @@ import com.examples.spring_jpa.examples.studentidcard.StudentIdCardRepository;
 import com.github.javafaker.Faker;
 
 @SpringBootApplication
+@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
 public class ExamplesApplication {
 
 	public static void main(String[] args) {
@@ -41,11 +41,19 @@ public class ExamplesApplication {
 			// ManyToManyExamples(studentRepository, courseEnrollmentRepository);
 
 			Student student = new Student("John", "Doe", 20, "john.doe@example.com");
-			studentRepository.save(student);
-			System.out.println("Total students before deleterion: " + studentRepository.count());
+			Student persistedStudent = studentRepository.save(student);
+			System.out.println("Total students before deletion: " + studentRepository.count());
 
+			
 			studentRepository.deleteById(1L);
 			System.out.println("Total students after deletion: " + studentRepository.count());
+
+			System.out.println("---Checking auditing fields---");
+			System.out.println("Student created by: " + persistedStudent.getCreatedBy());
+			System.out.println("Student created at: " + persistedStudent.getCreatedAt());
+			System.out.println("Student last modified by: " + persistedStudent.getLastModifiedBy());
+			System.out.println("Student last modified at: " + persistedStudent.getLastModifiedAt());
+
 
 
 		};
