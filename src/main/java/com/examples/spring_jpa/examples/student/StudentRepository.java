@@ -31,6 +31,10 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     @Query("SELECT s FROM Student s JOIN FETCH s.books")
     List<Student> findAllStudentsWithBooks();
 
+    @EntityGraph(attributePaths = {"books", "courseEnrollments"})
+    @Query("SELECT s FROM Student s")
+    List<Student> findAllStudentsWithBooksAndCourseEnrollments();
+
     @EntityGraph(attributePaths = {"books"})
     @Query("SELECT s FROM Student s")
     List<Student> findAllWithEntityGraphs();

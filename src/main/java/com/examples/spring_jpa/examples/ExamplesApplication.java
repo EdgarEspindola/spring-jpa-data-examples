@@ -39,13 +39,16 @@ public class ExamplesApplication {
 			// oneToManyExamples(studentRepository, bookRepository, studentService);
 			// oneToManyRemove(studentRepository, bookRepository);
 			// ManyToManyExamples(studentRepository, courseEnrollmentRepository);
-
+			Book book = new Book();
+			book.setTitle("Spring Data JPA");
+			
 			Student student = new Student("John", "Doe", 20, "john.doe@example.com");
+			student.addBook(book);
 			Student persistedStudent = studentRepository.save(student);
 			System.out.println("Total students before deletion: " + studentRepository.count());
 
 			
-			studentRepository.deleteById(1L);
+			// studentRepository.deleteById(1L);
 			System.out.println("Total students after deletion: " + studentRepository.count());
 
 			System.out.println("---Checking auditing fields---");
