@@ -80,4 +80,19 @@ public class CourseEnrollment {
         this.createdAt = createdAt;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CourseEnrollment)) return false;
+        CourseEnrollment that = (CourseEnrollment) o;
+        return courseEnrollmentId != null && courseEnrollmentId.equals(that.courseEnrollmentId);
+    }
+
+    @Override
+    public int hashCode() {
+        return courseEnrollmentId != null ? courseEnrollmentId.hashCode() : 0;
+    }
+
+    
+
 }

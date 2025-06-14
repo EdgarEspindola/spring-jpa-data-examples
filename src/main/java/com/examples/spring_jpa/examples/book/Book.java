@@ -1,6 +1,7 @@
 package com.examples.spring_jpa.examples.book;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import com.examples.spring_jpa.examples.student.Student;
 
@@ -80,12 +81,21 @@ public class Book {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Book other = (Book) obj;
+       
+        if (id != null) {
+            return id.equals(other.id);
+        }
+        
         return title != null && title.equals(other.title);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(title);
+        if (id != null) {
+            return Objects.hash(id);
+        }
+
+        return Objects.hash(title);
     }
 
     @Override

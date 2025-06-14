@@ -1,6 +1,7 @@
 package com.examples.spring_jpa.examples.course;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import com.examples.spring_jpa.examples.courseenrollment.CourseEnrollment;
@@ -72,5 +73,20 @@ public class Course {
         this.courseEnrollments = courseEnrollments;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Course other = (Course) obj;
+
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    
     
 }
