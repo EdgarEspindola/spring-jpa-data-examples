@@ -1,0 +1,13 @@
+@hostname = http://localhost:8080
+@products = {{hostname}}/api/v1/products
+
+GET {{products}}
+
+###
+
+PUT {{products}}/48d2bcf9-25f9-4d72-bda1-78fccbfe8016
+Content-Type: application/json
+
+{
+    "isPublished": false
+}
