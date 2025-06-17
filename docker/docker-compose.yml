@@ -1,0 +1,42 @@
+services:
+  db:
+    container_name: postgres-${ENV_NAME}
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: /data/postgres
+    ports:
+      - "${DB_PORT}:5432"
+    restart: unless-stopped
+    volumes:
+      - db_${ENV_NAME}:/data/postgres
+    networks:
+      - jpa-examples
+
+  product-service:
+    container_name: product-api-${ENV_NAME}
+    build:
+      context: ../ #Relativo a la ubicacion donde se encuentra docker-compose.yml
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${PRODUCT_SERVICE_PORT}:8080"
+    networks:
+      - jpa-examples
+    image: spring-jpa-examples/product-service:${IMAGE_TAG}
+
+networks:
+  jpa-examples:
+    driver: bridge
+
+volumes:
+  db_dev:
+  db_test:
+  db_staging:    
