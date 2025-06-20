@@ -2,6 +2,7 @@ package com.examples.spring_jpa.examples;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -12,12 +13,15 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,6 +36,9 @@ public class OrderServiceTests {
 
     @Mock
     private OrderRepository orderRepository;
+
+    @Captor
+    private ArgumentCaptor<Order> orderArgumentCaptor;
 
     @InjectMocks
     private OrderService underTest;
@@ -52,6 +59,62 @@ public class OrderServiceTests {
 
         // Then
         verify(paymentProcessor).charge(amount);
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    void shouldChargeSuccessfullyWithAssertArg() {
+        // Given
+        BigDecimal amount = new BigDecimal("100.00");
+        User user = new User(1, "John Doe");
+        
+        when(paymentProcessor.charge(amount)).thenReturn(true);
+        when(orderRepository.save(any())).thenReturn(1);
+
+        // When
+        boolean actual = underTest.processOrder(user, amount);
+
+        // Then
+        verify(paymentProcessor).charge(amount);
+        
+        verify(orderRepository).save(assertArg(order -> {
+            assertThat(order.id()).isNotNull();
+            assertThat(order.amount()).isEqualTo(amount);
+            assertThat(order.user()).isEqualTo(user);
+            assertThat(order.orderCreatedAt())
+                .isBefore(ZonedDateTime.now())
+                .isNotNull();
+        }));
+
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    void shouldChargeSuccessfullyWithArgCaptor() {
+        // Given
+        BigDecimal amount = new BigDecimal("100.00");
+        User user = new User(1, "John Doe");
+        
+        when(paymentProcessor.charge(amount)).thenReturn(true);
+        when(orderRepository.save(any())).thenReturn(1);
+
+        // When
+        boolean actual = underTest.processOrder(user, amount);
+
+        // Then
+        // ArgumentCaptor<Order> orderArgumentCaptor = ArgumentCaptor.forClass(Order.class);
+
+        verify(paymentProcessor).charge(amount);
+        verify(orderRepository).save(orderArgumentCaptor.capture());
+
+        Order orderFromCaptor = orderArgumentCaptor.getValue();
+        assertThat(orderFromCaptor.id()).isNotNull();
+            assertThat(orderFromCaptor.amount()).isEqualTo(amount);
+            assertThat(orderFromCaptor.user()).isEqualTo(user);
+            assertThat(orderFromCaptor.orderCreatedAt())
+                .isBefore(ZonedDateTime.now())
+                .isNotNull();
+
         assertThat(actual).isTrue();
     }
 

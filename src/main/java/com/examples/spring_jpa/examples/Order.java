@@ -8,7 +8,7 @@ public record Order(
     UUID id, 
     User user,
     BigDecimal amount, 
-    ZonedDateTime zonedDateTime
+    ZonedDateTime orderCreatedAt
 ) {
 
 }
