@@ -11,6 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -190,4 +192,43 @@ public class OrderServiceTests {
         verify(mockList, never()).reversed();
         verifyNoMoreInteractions(mockList);
     }
+
+    @Test
+    void mockitoDbb() {
+        // Given
+        List<String> mockList = mock();
+
+        // when(mockList.get(0)).thenReturn("hello");
+        given(mockList.get(0)).willReturn("hello");
+       
+        // When
+        String actual = mockList.get(0);
+
+        // Then
+
+        // verify(mockList).get(0);
+        then(mockList).should().get(0);
+
+        assertThat(actual).isEqualTo("hello");
+    }
+
+    @Test
+    void shouldThrownWhenChargeFailsWithMockitoBDD() {
+        // Given
+        BigDecimal amount = new BigDecimal("100.00");
+        given(paymentProcessor.charge(amount)).willReturn(false);
+        // When
+        assertThatThrownBy(() -> {
+            underTest.processOrder(null, amount);
+        })
+        .hasMessageContaining("Payment failed")
+        .isInstanceOf(IllegalStateException.class);
+
+        // Then
+        then(paymentProcessor).should().charge(amount);
+        then(orderRepository).shouldHaveNoInteractions();
+    }
+
+    
+
 }
