@@ -1,6 +1,7 @@
 package com.examples.spring_jpa.examples;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.ArgumentMatchers.eq;
@@ -244,6 +245,23 @@ public class OrderServiceTests {
         assertThat(mockList.size()).isEqualTo(3);
         assertThat(mockList.size()).isEqualTo(4); // moving forward will always return 4
         assertThat(mockList.size()).isEqualTo(4);
+    }
+
+    @Test
+    void shouldReturnCustomAnswer() {
+        // Given
+        List<String> mockList = mock();
+
+        // When
+        given(mockList.get(anyInt())).will(invocation -> {
+            int index = invocation.getArgument(0);
+            return "Hello index " + index;
+        });
+
+        // Then
+        assertThat(mockList.get(0)).isEqualTo("Hello index 0");
+        assertThat(mockList.get(1)).isEqualTo("Hello index 1");
+        assertThat(mockList.get(2)).isEqualTo("Hello index 2");
     }
 
 }
