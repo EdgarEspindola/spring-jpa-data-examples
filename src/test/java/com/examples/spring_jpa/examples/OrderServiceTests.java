@@ -1,5 +1,6 @@
 package com.examples.spring_jpa.examples;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -22,11 +23,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTests {
     @Mock
     private PaymentProcessor paymentProcessor;
+
+    @Mock
+    private OrderRepository orderRepository;
 
     @InjectMocks
     private OrderService underTest;
@@ -41,13 +46,30 @@ public class OrderServiceTests {
         // Given
         BigDecimal amount = new BigDecimal("100.00");
         when(paymentProcessor.charge(amount)).thenReturn(true);
-
+        when(orderRepository.save(any())).thenReturn(1);
         // When
-        boolean actual = underTest.processOrder(amount);
+        boolean actual = underTest.processOrder(null, amount);
 
         // Then
         verify(paymentProcessor).charge(amount);
         assertThat(actual).isTrue();
+    }
+
+    @Test
+    void shouldThrownWhenChargeFails() {
+        // Given
+        BigDecimal amount = new BigDecimal("100.00");
+        when(paymentProcessor.charge(amount)).thenReturn(false);
+        // When
+        assertThatThrownBy(() -> {
+            underTest.processOrder(null, amount);
+        })
+        .hasMessageContaining("Payment failed")
+        .isInstanceOf(IllegalStateException.class);
+
+        // Then
+        verify(paymentProcessor).charge(amount);
+        verifyNoInteractions(orderRepository);
     }
 
     @Test
@@ -75,7 +97,7 @@ public class OrderServiceTests {
         // Given
         List<String> mockList = mock();
         // When
-        mockList.clear();
+        //mockList.clear();
         // Then
         verifyNoInteractions(mockList);
     }
