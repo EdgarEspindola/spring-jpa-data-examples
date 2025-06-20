@@ -1,23 +1,35 @@
 package com.examples.spring_jpa.examples;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 public class OrderServiceTests {
-    private OrderService underTest;
+    @Mock
     private PaymentProcessor paymentProcessor;
+
+    @InjectMocks
+    private OrderService underTest;
 
     @BeforeEach
     void setUp() {
-        paymentProcessor = mock();
-        underTest = new OrderService(paymentProcessor);
+       // underTest = new OrderService(paymentProcessor);
     }
 
     @Test
@@ -32,5 +44,25 @@ public class OrderServiceTests {
         // Then
         verify(paymentProcessor).charge(amount);
         assertThat(actual).isTrue();
+    }
+
+    @Test
+    void testAnyMatcher() {
+        Map<String, String> mockMap = mock();
+        when(mockMap.get(anyString())).thenReturn("hello");
+        assertThat(mockMap.get("0")).isEqualTo("hello");
+        assertThat(mockMap.get("1")).isEqualTo("hello");
+        verify(mockMap, times(2)).get(anyString());
+    }
+
+    @Test
+    void testEqMatcher() {
+        Map<String, String> mockMap = mock();
+        when(mockMap.put(anyString(), eq("1"))).thenReturn("hello");
+
+        String actual = mockMap.put("hello", "1");
+
+        assertThat(actual).isEqualTo("hello");
+        verify(mockMap).put(eq("hello"), eq("1"));
     }
 }
