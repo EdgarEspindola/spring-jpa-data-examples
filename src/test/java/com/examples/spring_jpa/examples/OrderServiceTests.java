@@ -3,11 +3,15 @@ package com.examples.spring_jpa.examples;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -64,5 +68,41 @@ public class OrderServiceTests {
 
         assertThat(actual).isEqualTo("hello");
         verify(mockMap).put(eq("hello"), eq("1"));
+    }
+
+    @Test
+    void shouldVerifyNoInteractions() {
+        // Given
+        List<String> mockList = mock();
+        // When
+        mockList.clear();
+        // Then
+        verifyNoInteractions(mockList);
+    }
+
+    @Test
+    void shouldVerifyNoMoreInteractions() {
+        // Given
+        List<String> mockList = mock();
+        // When
+        mockList.clear();
+        mockList.add("hello");
+        // Then
+        verify(mockList).clear();
+        verify(mockList).add("hello");
+        verifyNoMoreInteractions(mockList);
+    }
+
+    @Test
+    void shouldVerifyInteractionMode() {
+        // Given
+        List<String> mockList = mock();
+        // When
+        mockList.clear();
+        mockList.clear();
+        // Then
+        verify(mockList, times(2)).clear();
+        verify(mockList, never()).reversed();
+        verifyNoMoreInteractions(mockList);
     }
 }
