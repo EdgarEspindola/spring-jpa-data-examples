@@ -229,6 +229,21 @@ public class OrderServiceTests {
         then(orderRepository).shouldHaveNoInteractions();
     }
 
-    
+    @Test
+    void chainedStubbing() {
+        // Given
+        List<String> mockList = mock();
+
+        // When
+        given(mockList.size()).willReturn(1, 2, 3, 4);
+        // when(mockList.size()).thenReturn(1, 2, 3, 4);
+
+        // Then
+        assertThat(mockList.size()).isEqualTo(1);
+        assertThat(mockList.size()).isEqualTo(2);
+        assertThat(mockList.size()).isEqualTo(3);
+        assertThat(mockList.size()).isEqualTo(4); // moving forward will always return 4
+        assertThat(mockList.size()).isEqualTo(4);
+    }
 
 }
