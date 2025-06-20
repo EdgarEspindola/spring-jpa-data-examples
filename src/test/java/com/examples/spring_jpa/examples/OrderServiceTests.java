@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.inOrder;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -78,9 +80,11 @@ public class OrderServiceTests {
         boolean actual = underTest.processOrder(user, amount);
 
         // Then
-        verify(paymentProcessor).charge(amount);
+        InOrder paymentProcessorOrderVerifier = inOrder(paymentProcessor, orderRepository);
         
-        verify(orderRepository).save(assertArg(order -> {
+        paymentProcessorOrderVerifier.verify(paymentProcessor).charge(amount);
+        
+        paymentProcessorOrderVerifier.verify(orderRepository).save(assertArg(order -> {
             assertThat(order.id()).isNotNull();
             assertThat(order.amount()).isEqualTo(amount);
             assertThat(order.user()).isEqualTo(user);
@@ -106,9 +110,10 @@ public class OrderServiceTests {
 
         // Then
         // ArgumentCaptor<Order> orderArgumentCaptor = ArgumentCaptor.forClass(Order.class);
+        InOrder paymentProcessorOrderVerifier = inOrder(paymentProcessor, orderRepository);
 
-        verify(paymentProcessor).charge(amount);
-        verify(orderRepository).save(orderArgumentCaptor.capture());
+        paymentProcessorOrderVerifier.verify(paymentProcessor).charge(amount);
+        paymentProcessorOrderVerifier.verify(orderRepository).save(orderArgumentCaptor.capture());
 
         Order orderFromCaptor = orderArgumentCaptor.getValue();
         assertThat(orderFromCaptor.id()).isNotNull();
