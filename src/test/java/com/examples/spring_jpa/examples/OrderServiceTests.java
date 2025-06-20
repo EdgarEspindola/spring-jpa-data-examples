@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -20,6 +21,8 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -269,4 +272,17 @@ public class OrderServiceTests {
         assertThat(mockList.get(2)).isEqualTo("Hello index 2");
     }
 
+    @Test 
+    void async() {
+        // Given
+        Runnable mockRunnable = mock();
+
+        // When
+        Executors
+            .newSingleThreadScheduledExecutor()
+            .schedule(mockRunnable, 200, TimeUnit.SECONDS);
+
+        // Then
+        then(mockRunnable).should(timeout(500).times(1)).run();
+    }
 }
