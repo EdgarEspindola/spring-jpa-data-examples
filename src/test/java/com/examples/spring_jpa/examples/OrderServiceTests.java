@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -15,9 +16,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.BDDMockito.inOrder;
-
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -284,5 +285,32 @@ public class OrderServiceTests {
 
         // Then
         then(mockRunnable).should(timeout(500).times(1)).run();
+    }
+
+    @Test
+    void canAdvanceClock() {
+        // Given
+        Clock clock = mock();
+        ZoneId zoneId = ZoneId.of("Mexico/General");
+        ZonedDateTime fixedZdt = ZonedDateTime.of(2025, 1, 1, 0, 0, 0, 0, zoneId);
+
+        given(clock.getZone()).willReturn(zoneId);
+        given(clock.instant()).willReturn(fixedZdt.toInstant());
+
+        ZonedDateTime now = ZonedDateTime.now(clock);
+        System.out.println(now);
+
+        // advance the clock
+        given(clock.instant()).willReturn(now.plusMinutes(15).toInstant());
+
+        // call current time again
+        System.out.println(ZonedDateTime.now(clock));
+
+        // advance the clock
+        given(clock.instant()).willReturn(now.plusMonths(15).toInstant());
+
+        // call current time again
+        System.out.println(ZonedDateTime.now(clock));
+
     }
 }
